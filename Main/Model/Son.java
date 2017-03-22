@@ -22,8 +22,8 @@ public class Son implements Runnable
 		soundfile = f;
 		try
 		{
-			stream = AudioSystem.getAudioInputStream(soundfile);
-			format = stream.getFormat();	
+			this.stream = AudioSystem.getAudioInputStream(soundfile);
+			this.format = stream.getFormat();	
 		}
 		catch(Exception e)
 		{
@@ -55,32 +55,32 @@ public class Son implements Runnable
         int[] audioData = null;
         int nb16=0,nb8=0;
         if (format.getSampleSizeInBits() == 16) {
-             int nlengthInSamples = audioBytes.length / 2;
-             System.out.println("length="+nlengthInSamples);
-             audioData = new int[nlengthInSamples];
+             int longueurSample = audioBytes.length / 2;
+             System.out.println("longueur="+longueurSample);
+             audioData = new int[longueurSample];
              if (format.isBigEndian()) {
-                for (int i = 0; i < nlengthInSamples; i++) {
-                     /* First byte is MSB (high order) */
+                for (int i = 0; i < longueurSample; i++) {
+
                      int MSB = (int) audioBytes[2*i];
-                     /* Second byte is LSB (low order) */
+                     
                      int LSB = (int) audioBytes[2*i+1];
                      audioData[i] = MSB << 8 | (255 & LSB);
                      nb16++;
                  }
              } else {
-                 for (int i = 0; i < nlengthInSamples; i++) {
-                     /* First byte is LSB (low order) */
+                 for (int i = 0; i < longueurSample; i++) {
+                     
                      int LSB = (int) audioBytes[2*i];
-                     /* Second byte is MSB (high order) */
+                     
                      int MSB = (int) audioBytes[2*i+1];
                      audioData[i] = MSB << 8 | (255 & LSB);
                      nb16++;
                  }
              }
          } else if (format.getSampleSizeInBits() == 8) {
-             int nlengthInSamples = audioBytes.length;
-             audioData = new int[nlengthInSamples];
-             System.out.println("length="+nlengthInSamples);
+             int longueurSample = audioBytes.length;
+             audioData = new int[longueurSample];
+             System.out.println("longueur"+longueurSample);
              if (format.getEncoding().toString().startsWith("PCM_SIGN")) {
                  for (int i = 0; i < audioBytes.length; i++) {
                      audioData[i] = audioBytes[i];
@@ -93,47 +93,48 @@ public class Son implements Runnable
                  }
              }
         }else if (format.getSampleSizeInBits() == 24) {
-             int nlengthInSamples = audioBytes.length / 3;
-             System.out.println("length="+nlengthInSamples);
-             audioData = new int[nlengthInSamples];
+             int longueurSample = audioBytes.length / 3;
+             System.out.println("longueur"+longueurSample);
+             audioData = new int[longueurSample];
              if (format.isBigEndian()) {
-                for (int i = 0; i < nlengthInSamples; i++) {
-                     /* First byte is MSB (high order) */
-                     int MSB = (int) audioBytes[2*i];
-                     /* Second byte is LSB (low order) */
-                     int LSB = (int) audioBytes[2*i+1];
-                     audioData[i] = MSB << 8 | (255 & LSB);
-                     nb16++;
+                for (int i = 0; i < longueurSample; i++) {
+                    int o1,o2,o3;
+                    o3= audioBytes[3*i];
+                    o2= audioBytes[3*i+1];
+                    o1= audioBytes[3*i+2];
+                    audioData[i] = o3<<16 | o2 << 8 |o1;
                  }
              } else {
-                 for (int i = 0; i < nlengthInSamples; i++) {
-                     /* First byte is LSB (low order) */
-                     int LSB = (int) audioBytes[2*i];
-                     /* Second byte is MSB (high order) */
-                     int MSB = (int) audioBytes[2*i+1];
-                     audioData[i] = MSB << 8 | (255 & LSB);
-                     nb16++;
+                 for (int i = 0; i < longueurSample; i++) {
+                     int o1,o2,o3;
+                    o3= audioBytes[3*i+2];
+                    o2= audioBytes[3*i+1];
+                    o1= audioBytes[3*i];
+                    audioData[i] = o3<<16 | o2 << 8 |o1;
                  }
              }
          }
            
         int frames_per_pixel = audioBytes.length / format.getFrameSize()/w;
         byte my_byte = 0;
-        double y_last = 0;
+        double y_last = 0,y_new=0;
         int nbLine=0;
         int numChannels = format.getChannels();
         for (double x = 0; x < w && audioData != null; x++) {
             int idx = (int) (frames_per_pixel * numChannels * x);
             if (format.getSampleSizeInBits() == 8) {
                  my_byte = (byte) audioData[idx];
+                 y_new = (double) (h * (128 - my_byte) / 256);
             } else if(format.getSampleSizeInBits() == 16){
-                 my_byte = (byte) (128 * audioData[idx] / 32768 );
+                 my_byte = (byte) (audioData[idx]>>8);
+                 y_new = (double) (h * (128 - my_byte) / 256);
             }
             else
             {
-            	 my_byte = (byte) (128 * audioData[idx] / (32768*2) );
+            	 my_byte=(byte)(audioData[idx]>>16);
+                 y_new = (double) (h * (128 - my_byte) / 256);
             }
-            double y_new = (double) (h * (128 - my_byte) / 256);
+            
             nbLine++;
             lines.add(new Line2D.Double(x, y_last, x, y_new));
             y_last = y_new;
@@ -141,11 +142,34 @@ public class Son implements Runnable
         System.out.println("nombre ligne = "+nbLine+" nb16="+nb16+" nb8="+nb8+" sampleSizeinBits="+format.getSampleSizeInBits());
         return lines;
     }
-	public void run() /* jouerson */
+    /*teste de lecture avec Clip*/
+    /*
+    public void run()
+    {
+        this.play = true;
+        this.stop = false;
+        try
+        {
+            Line.Info linfo = new Line.Info(Clip.class);
+            Line line = AudioSystem.getLine(linfo);
+            Clip clip = (Clip) line;
+            //clip.addLineListener(this);
+            clip.open(this.stream);
+            clip.start();
+        }catch(LineUnavailableException e)
+        {
+            System.out.println("Line unavailable");
+        }catch(IOException e)
+        {
+            e.printStackTrace();
+        }
+    }*/
+    
+	public void run()
 	{
         this.play = true;
         this.stop = false;
-		DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
+		DataLine.Info info = new DataLine.Info(SourceDataLine.class, this.format);
 		try
 		{
             if(this.source != null)
@@ -179,6 +203,7 @@ public class Son implements Runnable
 			if(bytes >= 0)
 			{
 				int byteswritten = this.source.write(buf, 0, bytes);
+                System.out.println("envoie du flux");
 			}
 		}
 	
