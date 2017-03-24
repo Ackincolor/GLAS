@@ -13,7 +13,8 @@ public class Son implements Runnable
 	private AudioInputStream stream;
 	private AudioFormat format;
 	private SourceDataLine source;
-    
+    private Clip clip;
+    private int framePosition =0;
     private boolean play;
     private boolean stop;
 
@@ -124,17 +125,14 @@ public class Son implements Runnable
             int idx = (int) (frames_per_pixel * numChannels * x);
             if (format.getSampleSizeInBits() == 8) {
                  my_byte = (byte) audioData[idx];
-                 y_new = (double) (h * (128 - my_byte) / 256);
             } else if(format.getSampleSizeInBits() == 16){
                  my_byte = (byte) (audioData[idx]>>8);
-                 y_new = (double) (h * (128 - my_byte) / 256);
             }
             else
             {
             	 my_byte=(byte)(audioData[idx]>>16);
-                 y_new = (double) (h * (128 - my_byte) / 256);
             }
-            
+            y_new = (double) (h * (128 - my_byte) / 256);
             nbLine++;
             lines.add(new Line2D.Double(x, y_last, x, y_new));
             y_last = y_new;
@@ -143,7 +141,7 @@ public class Son implements Runnable
         return lines;
     }
     /*teste de lecture avec Clip*/
-    /*
+    
     public void run()
     {
         this.play = true;
@@ -152,10 +150,11 @@ public class Son implements Runnable
         {
             Line.Info linfo = new Line.Info(Clip.class);
             Line line = AudioSystem.getLine(linfo);
-            Clip clip = (Clip) line;
+            this.clip = (Clip) line;
             //clip.addLineListener(this);
-            clip.open(this.stream);
-            clip.start();
+            this.clip.open(this.stream);
+            clip.setFramePosition(this.framePosition);
+            this.clip.start();
         }catch(LineUnavailableException e)
         {
             System.out.println("Line unavailable");
@@ -163,8 +162,8 @@ public class Son implements Runnable
         {
             e.printStackTrace();
         }
-    }*/
-    
+    }
+    /*
 	public void run()
 	{
         this.play = true;
@@ -195,6 +194,7 @@ public class Son implements Runnable
 			try
 			{
 				bytes = stream.read(buf, 0, buf.length);
+                System.out.println("Lecture du fichier");
 			}
 			catch(IOException e)
 			{
@@ -212,16 +212,25 @@ public class Son implements Runnable
             this.source.drain();
         }
         
-	}
-    
+	}*/
+    public File getFile()
+    {
+        return this.soundfile;
+    }
     public void arreterSon()
     {
         this.play = false;
         this.stop = true;
+        this.clip.stop();
+        this.clip.close();
+        this.framePosition =0;
     }
     
     public void pauseSon()
     {
+        this.framePosition = this.clip.getFramePosition();
+        this.clip.stop();
+        this.clip.close();
         this.play = false;
         this.stop = false;
     }

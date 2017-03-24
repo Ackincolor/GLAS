@@ -29,13 +29,12 @@ public class Graph extends JComponent
     
     public Graph()
     {
-        this.y = new int[2];
-        this.x = new int[2];
-        this.y[0] = 1;
-        this.y[1] = 1;
-        this.moyenne = 1;
     }
-    
+    public void setVector(Vector lines)
+    {
+        this.vect = lines;
+        this.repaint();
+    }
     @Override
     protected void paintComponent(Graphics g)
     {
@@ -48,7 +47,7 @@ public class Graph extends JComponent
             for (int i = 1; i < this.vect.size(); i++) {
                         g2.draw((Line2D) this.vect.get(i));
                     }
-        }
+        }/*
         else
         {
             int ytranslate[] = new int[y.length];
@@ -65,7 +64,7 @@ public class Graph extends JComponent
             }
             
             clone.drawPolyline(this.x,ytranslate,this.y.length);
-        }
+        }*/
     }
 
 

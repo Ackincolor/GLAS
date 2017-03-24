@@ -20,7 +20,7 @@ public class RecordButton implements ActionListener
 		this.playB = this.optionPanel.getAllButton()[2];
         this.exportB = this.optionPanel.getAllButton()[3];
         this.time = this.optionPanel.getLabel();
-        this.time.setText("00:00");
+        //this.time.setText("00:00");
 	}
 	public void actionPerformed(ActionEvent e) {
             JButton button = (JButton) e.getSource();

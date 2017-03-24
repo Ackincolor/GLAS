@@ -181,7 +181,8 @@ public class SynthModel
 		try{
 			AudioSynthesizer synth2 = findAudioSynthesizer();
 			System.out.println("debut Save");
-			AudioFormat format = new AudioFormat(96000, 24, 2, true, false);
+			//AudioFormat format = new AudioFormat(96000, 24, 2, true, false);
+			AudioFormat format = new AudioFormat(96000, 16, 2, true, false);
 	        Map<String, Object> p = new HashMap<String, Object>();
 	        p.put("interpolation", "sinc");
 	        p.put("max polyphony", "1024");

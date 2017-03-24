@@ -8,10 +8,12 @@ import javax.swing.JButton;
 public class PlaybackControl implements ActionListener
 {
 	private Son son;
-    
+    private Thread t;
     public PlaybackControl()
+    {}
+    public PlaybackControl(Son son)
     {
-        
+      this.son = son;  
     }
 
 	@Override
@@ -19,36 +21,40 @@ public class PlaybackControl implements ActionListener
 	{
         if(((JButton)e.getSource()).getText().equals(Playback.PLAY))
         {
-            if(son != null)
+            if(this.son != null)
             {
-                Thread t = new Thread(son);
-                t.start();
+                this.t = new Thread(this.son);
+                this.t.start();
             }
+            else{System.out.println("sonNull");}
             System.out.println("play");
 
         }
         else if(((JButton)e.getSource()).getText().equals(Playback.PAUSE))
         {
-            if(son != null)
+            if(this.son != null)
             {
-                son.pauseSon();
+                this.son.pauseSon();
             }
             System.out.println("pause");
 
         }
         else if(((JButton)e.getSource()).getText().equals(Playback.STOP))
         {
-            if(son != null)
+            if(this.son != null)
             {
-                son.arreterSon();
+                this.son.arreterSon();
             }
             System.out.println("stop");
 
         }
 	}
-
+    public void closeThread()
+    {
+        this.t.interrupt();
+    }
 	public void setSon(File f)
 	{	
-		son = new Son(f);
+		this.son = new Son(f);
 	}
 }

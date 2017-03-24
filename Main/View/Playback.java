@@ -2,6 +2,8 @@ package Main.View;
 import java.awt.*;
 import javax.swing.*;
 import Main.Controler.*;
+import Main.Model.*;
+import java.io.*;
 
 public class Playback extends JPanel
 {
@@ -12,6 +14,8 @@ public class Playback extends JPanel
     public static final String PAUSE = "\u23F8";
     public static final String STOP = "\u25B4";
 
+    private JButton stop,pause,play;
+    private boolean everUsed=false;
     
  
     public Playback()
@@ -20,19 +24,13 @@ public class Playback extends JPanel
         
         JSlider volume = new JSlider(SwingConstants.HORIZONTAL);
         
-        JButton stop = new JButton(Playback.STOP);
-        JButton pause = new JButton(Playback.PAUSE);
-        JButton play = new JButton(Playback.PLAY);
+        this.stop = new JButton(Playback.STOP);
+        this.pause = new JButton(Playback.PAUSE);
+        this.play = new JButton(Playback.PLAY);
         
-        stop.setOpaque(false);
-        pause.setOpaque(false);
-        play.setOpaque(false);
-
-        
-        this.playcontroler = new PlaybackControl();
-        play.addActionListener(playcontroler);
-        stop.addActionListener(playcontroler);
-        pause.addActionListener(playcontroler);
+        this.stop.setOpaque(false);
+        this.pause.setOpaque(false);
+        this.play.setOpaque(false);
         
         JButton sauvegarde = new JButton("Sauvegarder");
         JButton ouvrir = new JButton("Ouvrir");
@@ -71,7 +69,17 @@ public class Playback extends JPanel
         this.constraints.insets = new Insets(2,2,2,2);
 
     }
-
+    public void setSound(Son son)
+    {
+        this.playcontroler = new PlaybackControl(new Son(son.getFile()));
+        if(!this.everUsed)
+        {
+            this.play.addActionListener(playcontroler);
+            this.stop.addActionListener(playcontroler);
+            this.pause.addActionListener(playcontroler);
+        }
+        this.everUsed = true;
+    }
 	public PlaybackControl getPlayController()
 	{
 		return this.playcontroler;
