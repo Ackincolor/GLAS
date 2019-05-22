@@ -2,6 +2,10 @@ package Keybord.Controler;
 
 import Keybord.View.*;
 import javax.swing.*;
+/**
+*
+*
+*/
 public class KeybordMain implements Runnable
 {
 	public static void main(String[] args)

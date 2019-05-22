@@ -113,37 +113,50 @@ public class KeyControlerClavier implements KeyListener
 	{
 		//on a besoin de : qzsedftgyhuj
 		int touche=getNumeroNote(e);
-		if(touche!=-1)
-		{//rien,Premier Octave
-			if(!espace && !ctrGauche && !shift)
-				touche+=24;
-			//ctrGauche  = Deuxieme Octave
-			else if(!espace && ctrGauche && !shift)
-				touche+=36;
-			//espace = Troisieme Octave
-			else if(espace && !ctrGauche && !shift)
-				touche+=48;
-			//shift = Quatrieme Octave
-			else if(!espace && !ctrGauche && shift)
-				touche+=60;
-			//ctrGauche +espace = 5eme Octave
-			else if(espace && ctrGauche && !shift)
-				touche+=72;
-			//shift+espace = 6eme Octave
-			else if(espace && !ctrGauche && shift)
-				touche+=84;
-			else
-				System.out.println("Aucune Combinaison!");
-			return touche;
+		int octave = this.synthModel.getOctave();
+		if(octave==-1)
+		{
+			if(touche!=-1)
+			{//rien,Premier Octave
+				if(!espace && !ctrGauche && !shift)
+					touche+=24;
+				//ctrGauche  = Deuxieme Octave
+				else if(!espace && ctrGauche && !shift)
+					touche+=36;
+				//espace = Troisieme Octave
+				else if(espace && !ctrGauche && !shift)
+					touche+=48;
+				//shift = Quatrieme Octave
+				else if(!espace && !ctrGauche && shift)
+					touche+=60;
+				//ctrGauche +espace = 5eme Octave
+				else if(espace && ctrGauche && !shift)
+					touche+=72;
+				//shift+espace = 6eme Octave
+				else if(espace && !ctrGauche && shift)
+					touche+=84;
+				else
+					System.out.println("Aucune Combinaison!");
+				return touche;
+			}
+			else return -1;
 		}
-		else return -1;
+		else
+		{
+			return touche+(octave*12);
+		}
 	}
 	public void keyTyped(KeyEvent e)
 	{
 		//System.out.println("touche");
 	}
+	public PianoView getView()
+	{
+		return this.vue;
+	}
 	public Key getKey(int num)
 	{
+		//System.out.println("num touche :"+num);
 		for(Key note : this.notesNoire)
 		{
 			if(note.getNum()==num)

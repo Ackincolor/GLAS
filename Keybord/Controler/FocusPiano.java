@@ -12,8 +12,12 @@ public class FocusPiano implements MouseListener
     {
     	this.vue.requestFocus();
     }
-    public void mouseEntered(MouseEvent e){}
-    public void mouseExited(MouseEvent e){}
+    public void mouseEntered(MouseEvent e){
+        this.vue.requestFocus();
+    }
+    public void mouseExited(MouseEvent e){
+     this.vue.requestFocus();   
+    }
     public void mousePressed(MouseEvent e){}
     public void mouseReleased(MouseEvent e){}
 }

@@ -19,18 +19,17 @@ public class PlaybackControl implements ActionListener
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-        if(((JButton)e.getSource()).getText().equals(Playback.PLAY))
+        if(((JButton)e.getSource()).getName().equals(Playback.PLAY))
         {
             if(this.son != null)
             {
-                this.t = new Thread(this.son);
-                this.t.start();
+                this.son.playSound();
             }
             else{System.out.println("sonNull");}
             System.out.println("play");
 
         }
-        else if(((JButton)e.getSource()).getText().equals(Playback.PAUSE))
+        else if(((JButton)e.getSource()).getName().equals(Playback.PAUSE))
         {
             if(this.son != null)
             {
@@ -39,7 +38,7 @@ public class PlaybackControl implements ActionListener
             System.out.println("pause");
 
         }
-        else if(((JButton)e.getSource()).getText().equals(Playback.STOP))
+        else if(((JButton)e.getSource()).getName().equals(Playback.STOP))
         {
             if(this.son != null)
             {
@@ -53,8 +52,8 @@ public class PlaybackControl implements ActionListener
     {
         this.t.interrupt();
     }
-	public void setSon(File f)
+	public void setSon(Son s)
 	{	
-		this.son = new Son(f);
+        this.son = s;
 	}
 }

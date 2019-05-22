@@ -1,22 +1,27 @@
 package Main.View;
 import Main.Model.*;
+import Main.Controler.CursorControler;
 import java.io.File;
 import javax.swing.*;
 import java.awt.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-public class Onde extends JPanel
+public class Onde extends JPanel implements SoundView
 {
     public GridBagConstraints constraints;
     private Son son;
     private Graph graph; 
-    
+    private Cursor timecursor;
     public Onde()
     {
         /*ImageIcon image = new ImageIcon("Image/GlasImage.png");
         JLabel label = new JLabel("",image,JLabel.LEFT);
         add(label,BorderLayout.WEST);*/
+        super();
         setLayout(new GridLayout(1,1));
-        //int[] ypoints = {8,-3,5,-1,16,-3,4,6,-1,4,6,3,7,-8,3,2,-7,4,2,4,-7,5,-3,8};     
+        JLayeredPane layeredpane = new JLayeredPane();
+        //layeredpane.setLayout(new BoxLayout());
+        
+        //int[] ypoints = {8,-3,5,-1,16,-3,4,6,-1,4,6,3,7,-8,3,2,-7,4,2,4,-7,5,-3,8};
         this.setBackground(Color.GRAY);
         this.constraints = new GridBagConstraints();
         this.constraints.fill = GridBagConstraints.BOTH;
@@ -28,13 +33,28 @@ public class Onde extends JPanel
         this.constraints.gridheight = 4;
         this.constraints.insets = new Insets(2,2,2,2);
         this.graph = new Graph();
-        this.add(this.graph);
+        graph.setBounds(0,0,1000,1000); // 704x619
+        //this.add(this.graph);
+        Cursor c = new Cursor();
+        this.timecursor = new Cursor();
+        c.setBounds(0,0,1000,1000);
+        this.timecursor.setBounds(0,0,1000,1000);
+        CursorControler ccontroler = new CursorControler(c,this.timecursor);
+        c.addMouseMotionListener(ccontroler);
+        c.addMouseListener(ccontroler);
+        //this.add(c);
+        layeredpane.add(this.graph,JLayeredPane.DEFAULT_LAYER);
+        layeredpane.add(this.timecursor,JLayeredPane.PALETTE_LAYER);
+        layeredpane.add(c,JLayeredPane.MODAL_LAYER);
+        this.add(layeredpane);
     }
     public void draw(File f)
     {
-        this.setBackground(Color.BLACK);
+        //this.setBackground(Color.GREEN);
         this.son = new Son(f);
         this.graph.setVector(son.createWaveForm(this.getSize()));
+        //this.graph.setBackground(Color.GREEN);
+        this.repaint();
     }
     public void draw()
     {
@@ -74,5 +94,9 @@ public class Onde extends JPanel
     public Son getSound()
     {
         return this.son;
+    }
+    public Cursor getTimeCursor()
+    {
+        return this.timecursor;
     }
 }

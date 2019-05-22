@@ -14,6 +14,15 @@ public class KeyControler extends MouseAdapter
 	private Key current = null;
 	private SynthModel synthModel;
 	private JCheckBox mouseOverPiano;
+/**
+*	Constructeur de KeyControler
+*
+* 	@param vue Vue du piano
+*	@param blanches Liste des touches blanches
+*	@param noires Liste des touches noires
+*	@param synthModel Model du Clavier Virtuel
+*	@param mousOverPiano JCheckBox pour savoir si on active ou non le MouseOver
+*/
 	public KeyControler(PianoView vue,ArrayList<Key> blanches,ArrayList<Key> noires,SynthModel synthModel,JCheckBox mouseOverPiano)
 	{
 		this.vue = vue;
@@ -80,14 +89,14 @@ public class KeyControler extends MouseAdapter
 	}
 	private Key getKey(int x,int y)
 	{
-		for(Key note : noires)
+		for(Key note : this.noires)
 		{
 			if(note.contains(x,y))
 			{
 				return note;
 			}
 		}
-		for(Key note : blanches)
+		for(Key note : this.blanches)
 		{
 			if(note.contains(x,y))
 			{

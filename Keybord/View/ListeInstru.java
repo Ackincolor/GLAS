@@ -45,5 +45,14 @@ public class ListeInstru extends JPanel
 		listSelectionModel.addListSelectionListener(new ControleurTableSelection(synthModel,this.table));
 		listSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getColumnModel().getSelectionModel().addListSelectionListener(new ControleurTableSelection(synthModel,this.table));
+        synthModel.setTable(this.table);
 	}
+    public void setFocus(PianoView v)
+    {
+        this.table.addMouseListener(new FocusPiano(v));
+    }
+    public JTable getJTable()
+    {
+        return this.table;
+    }
 }

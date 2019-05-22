@@ -1,10 +1,13 @@
 package Main.Model;
-import java.awt.*;
+import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import javax.sound.sampled.*;
 import java.util.Vector;
 import java.awt.geom.Line2D;
+import Main.View.*;
+import Main.Controler.*;
+
 
 public class Son implements Runnable
 {
@@ -14,17 +17,20 @@ public class Son implements Runnable
 	private AudioFormat format;
 	private SourceDataLine source;
     private Clip clip;
-    private int framePosition =0;
+    private long framePosition =0;
     private boolean play;
     private boolean stop;
-
+    private Control[] controls;
+    private Cursor cursor;
+    private ClipControler clipcontroler;
+    
 	public Son(File f)
 	{
 		soundfile = f;
 		try
 		{
 			this.stream = AudioSystem.getAudioInputStream(soundfile);
-			this.format = stream.getFormat();	
+			this.format = stream.getFormat();
 		}
 		catch(Exception e)
 		{
@@ -153,7 +159,7 @@ public class Son implements Runnable
             this.clip = (Clip) line;
             //clip.addLineListener(this);
             this.clip.open(this.stream);
-            clip.setFramePosition(this.framePosition);
+            clip.setMicrosecondPosition(this.framePosition);
             this.clip.start();
         }catch(LineUnavailableException e)
         {
@@ -163,76 +169,117 @@ public class Son implements Runnable
             e.printStackTrace();
         }
     }
-    /*
-	public void run()
-	{
-        this.play = true;
-        this.stop = false;
-		DataLine.Info info = new DataLine.Info(SourceDataLine.class, this.format);
-		try
-		{
-            if(this.source != null)
-            {
-                this.source.close();
-            }
-			this.source = (SourceDataLine) AudioSystem.getLine(info);
-			this.source.open(format);
-			
-		}
-		catch(LineUnavailableException e)
-		{
-			System.out.println("Line unavailable");
-		}
-
-		this.source.start();
-
-		int bytes = 0;
-
-		byte[] buf = new byte[BUFL];
-		while(bytes != -1 && this.play)
-		{	
-			try
-			{
-				bytes = stream.read(buf, 0, buf.length);
-                System.out.println("Lecture du fichier");
-			}
-			catch(IOException e)
-			{
-				System.out.println("Problème de lecture!");
-			}
-			if(bytes >= 0)
-			{
-				int byteswritten = this.source.write(buf, 0, bytes);
-                System.out.println("envoie du flux");
-			}
-		}
-	
-        if(stop)
-        {
-            this.source.drain();
-        }
-        
-	}*/
+    
     public File getFile()
     {
         return this.soundfile;
     }
+    public Clip getClip()
+    {
+        return this.clip;
+    }
+    
+    public Control[] getControls()
+    {
+        if(this.clip==null)
+        {
+            try
+            {
+                openSound();
+
+            }catch(LineUnavailableException e)
+            {
+                System.out.println("Line unavailable");
+            }catch(IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        return this.controls;
+    }
+    
+    public void openSound() throws LineUnavailableException, IOException
+    {
+        Line.Info linfo = new Line.Info(Clip.class);
+        Line line = AudioSystem.getLine(linfo);
+        this.clip = (Clip) line;
+        //clip.addLineListener(this);
+        this.clip.open(this.stream);
+        this.controls = this.clip.getControls();
+        this.framePosition= 0;
+    }
+    
+    public void playSound()
+    {
+        try
+        {
+            if(this.clip==null)
+                openSound();
+            if(this.clipcontroler==null)
+                this.clipcontroler = new ClipControler(this.cursor,this.clip.getMicrosecondLength());
+            this.clip.setMicrosecondPosition(this.framePosition);
+            this.clip.start();
+            this.clipcontroler.setRunning(false);
+            this.clipcontroler.setRunning(true);
+            (new Thread(this.clipcontroler)).start();
+            
+        }catch(LineUnavailableException e)
+        {
+            System.out.println("Line unavailable");
+        }catch(IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+    
     public void arreterSon()
     {
         this.play = false;
         this.stop = true;
         this.clip.stop();
-        this.clip.close();
+        this.clip.drain();
         this.framePosition =0;
+        this.cursor.changeCursor(0);
+        this.clipcontroler.setRunning(false);
     }
     
     public void pauseSon()
     {
-        this.framePosition = this.clip.getFramePosition();
+        this.framePosition = this.clip.getMicrosecondPosition();
         this.clip.stop();
-        this.clip.close();
+        this.clip.drain();
         this.play = false;
         this.stop = false;
+        this.clipcontroler.setRunning(false);
+    }
+    
+    public void changerEffet(Control c, int value)
+    {
+        
+        if(this.clip.isControlSupported(c.getType()))
+        {
+            System.out.println("Here hopefully");
+
+            if(c instanceof FloatControl)
+            {
+                ((FloatControl)this.clip.getControl(c.getType())).setValue((float)value);
+                this.clip.start();
+            }
+            else if(c instanceof BooleanControl)
+            {
+                ((BooleanControl)this.clip.getControl(c.getType())).setValue((new Integer(value)).equals(1));
+            }
+        } 
+        
+        /*FloatControl gainControl =
+        (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+        gainControl.setValue(-10.0f); // Reduce volume by 10 decibels.
+        clip.start();*/
     }
 
+    public void setCursor(Cursor c)
+    {
+        this.cursor = c;
+    }
+    
 }

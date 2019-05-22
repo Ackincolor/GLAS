@@ -7,34 +7,41 @@ import javax.swing.*;
 
 public class ChangerCouleurs implements ActionListener
 {
-    private ArrayList<JPanel> panels;
+    private TreeMap<String, JPanel> panels;
     private ArrayList<Color> theme_a;
     private ArrayList<Color> theme_b;
     private ArrayList<Color> theme_c;
     private ArrayList<Color> theme_d;
     
-    public ChangerCouleurs(ArrayList<JPanel> panels)
+    public ChangerCouleurs(TreeMap<String, JPanel> panels)
     {
         this.panels = panels;
+        //Violet
         theme_a = new ArrayList<Color>();
         theme_a.add(new Color(0x878787));
         theme_a.add(new Color(0xBB7E8C));
         theme_a.add(new Color(0xD1BECF));
-
+        theme_a.add(new Color(0xD1BECF));
+        //Monochrome
         theme_b = new ArrayList<Color>();
         theme_b.add(new Color(0xFFFFFF));
         theme_b.add(new Color(0x2D3142));
         theme_b.add(new Color(0xBFC0C0));
-        
+        theme_b.add(new Color(0xBFC0C0));
+        //Terre
         theme_c = new ArrayList<Color>();
-        theme_c.add(new Color(0x5E503F));
-        theme_c.add(new Color(0xF2F4F3));
         theme_c.add(new Color(0x49111C));
-        
+        theme_c.add(new Color(0xF2F4F3));
+        theme_c.add(new Color(0x5E503F));
+        theme_c.add(new Color(0x5E503F));
+
+        //Clinique
         theme_d = new ArrayList<Color>();
         theme_d.add(new Color(0xAAD2BA));
         theme_d.add(new Color(0xD9FF5));
         theme_d.add(new Color(0xB9F5D8));
+        theme_d.add(new Color(0xB9F5D8));
+
 
     }
     public void actionPerformed(ActionEvent e)
@@ -55,10 +62,13 @@ public class ChangerCouleurs implements ActionListener
             choix = theme_d;
         }
         int i = 0;
-        for(Color c : choix)
+        for(String keys : this.panels.keySet())
         {
-            this.panels.get(i).setBackground(c);
-            i++;
+            if(!keys.equals("Onde"))
+            {
+                this.panels.get(keys).setBackground(choix.get(i));
+                i=(i+1)%3;
+            }
         }
     }
 }
